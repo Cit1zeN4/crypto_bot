@@ -1,0 +1,28 @@
+{
+  "name": "crypto_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cit1zeN4/crypto_bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cit1zeN4/crypto_bot/issues"
+  },
+  "homepage": "https://github.com/Cit1zeN4/crypto_bot#readme",
+  "dependencies": {
+    "rc": "^1.2.8",
+    "telegraf": "^3.38.0",
+    "typescript": "^3.9.5"
+  },
+  "devDependencies": {
+    "@types/rc": "^1.1.0"
+  }
+}
