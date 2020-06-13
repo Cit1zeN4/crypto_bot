@@ -1,5 +1,5 @@
 import Telegraf from "telegraf";
-import { ICommand } from ".";
+import { ICommand, addArray } from ".";
 import { TelegrafContext } from "telegraf/typings/context";
 
 export interface IBot {
@@ -15,11 +15,9 @@ export class TelegrafAdapter implements IBot {
   }
 
   addCommand(command: ICommand | Array<ICommand>): void {
-    if (command instanceof Array)
-      command.forEach((item) => {
-        this.telegraf.command(item.name, item.action);
-      });
-    else this.telegraf.command(command.name, command.action);
+    addArray(command, (ctx: ICommand) => {
+      this.telegraf.command(ctx.name, ctx.action);
+    });
   }
 
   async launch(): Promise<void> {
