@@ -2,7 +2,7 @@ import rc from "rc";
 
 export type ConfigT = {
   bot: {
-    bot_token: string;
+    botToken: string;
   };
 };
 
