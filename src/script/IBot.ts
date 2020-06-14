@@ -24,6 +24,12 @@ export interface IBot {
 export function setCommands(commands: TCommand | TCommand[], cb: (ctx: any) => void) {
   addArray(commands, cb);
 }
+export function setEvents(events: TEvent | TEvent[], cb: (ctx: any) => void) {
+  addArray(events, cb);
+}
+export function setTriggers(triggers: TTrigger | TTrigger[], cb: (ctx: any) => void) {
+  addArray(triggers, cb);
+}
 
 export class TelegrafAdapter implements IBot {
   private telegraf: Telegraf<TelegrafContext>;
