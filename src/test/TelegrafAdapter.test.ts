@@ -1,9 +1,11 @@
 import { expect } from "chai";
-import { addArray } from "../script";
+import { addArray, setCommands, TCommand } from "../script";
 import "mocha";
 
+// DELETE
+
 describe("IBot", () => {
-  describe("Add array or single object test", () => {
+  describe("<addArray> Add array or single object test", () => {
     it("Add array test", () => {
       const arr: number[] = [];
       addArray([1, 2, 3], (item) => {
@@ -11,12 +13,13 @@ describe("IBot", () => {
       });
       expect(arr).to.eql([1, 2, 3]);
     });
+
     it("Add single object test", () => {
-      let numb: number = 0;
+      const arr: number[] = [1, 2, 3, 4];
       addArray(5, (item) => {
-        numb = item;
+        arr.push(item);
       });
-      expect(numb).to.equal(5);
+      expect(arr).to.eql([1, 2, 3, 4, 5]);
     });
   });
 });

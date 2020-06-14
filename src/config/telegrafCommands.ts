@@ -1,9 +1,14 @@
-import { ICommand, TelegrafCommand } from "../script";
+import { TTelegrafCommand } from "../script/IBot-types";
 
-const commands: Array<ICommand> = [
-  new TelegrafCommand("start", (ctx) => {
-    ctx.reply("Welcome to crypto trader");
-  }),
+const commands: TTelegrafCommand[] = [
+  {
+    commands: "start",
+    actions: [
+      (ctx) => {
+        ctx.reply("Welcome to new TG bot");
+      },
+    ],
+  },
 ];
 
 export default commands;

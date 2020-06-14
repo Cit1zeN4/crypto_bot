@@ -1,3 +1,3 @@
 export * from "./IBot";
-export * from "./ICommand";
+export * from "./IBot-types";
 export * from "./addArray";
