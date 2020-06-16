@@ -48,7 +48,7 @@ export class TelegrafAdapter implements IBot {
     this.telegraf.hears(trigger.triggers, ...trigger.actions);
   }
   command(command: TTelegrafCommand): void {
-    const c = this.telegraf.command(command.commands, ...command.actions);
+    this.telegraf.command(command.commands, ...command.actions);
   }
   launch(): Promise<void> {
     return this.telegraf.launch();
