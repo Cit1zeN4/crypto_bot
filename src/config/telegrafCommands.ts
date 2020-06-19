@@ -1,4 +1,4 @@
-import { TTelegrafCommand } from "../script/IBot-types";
+import { TTelegrafCommand } from "../script/TelegrafAdapter";
 
 const commands: TTelegrafCommand[] = [
   {

@@ -12,16 +12,3 @@ export type TEvent = {
   events: string | string[];
   actions: Function[] | Object[];
 };
-
-export type TTelegrafCommand = {
-  commands: string | string[];
-  actions: Middleware<TelegrafContext>[];
-};
-export type TTelegrafTrigger = {
-  triggers: HearsTriggers<TelegrafContext>;
-  actions: Middleware<TelegrafContext>[];
-};
-export type TTelegrafEvent = {
-  events: UpdateType | MessageSubTypes | UpdateType[] | MessageSubTypes[];
-  actions: Middleware<TelegrafContext>[];
-};
