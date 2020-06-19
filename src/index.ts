@@ -1,17 +1,15 @@
-import Telegraf, { Stage, session, BaseScene, Middleware } from "telegraf";
+import Telegraf from "telegraf";
 import { getConfig } from "./config";
-import { TelegrafAdapter, setCommands, TelegrafScene, TelegrafStage } from "./script";
-import telegrafCommands from "./config/telegrafCommands";
-import { TelegrafContext } from "telegraf/typings/context";
+import { TelegrafBotBuilder } from "./script";
+
+import commands from "./config/telegrafCommands";
 
 const config = getConfig("config");
 const telegraf = new Telegraf(config.bot.botToken);
-const bot = new TelegrafAdapter(telegraf);
+const botBuilder = new TelegrafBotBuilder(telegraf);
 
-bot.use(Telegraf.log());
+botBuilder.addMiddleware(Telegraf.log());
+botBuilder.addCommands(...commands);
 
-setCommands(telegrafCommands, (ctx) => {
-  bot.command(ctx);
-});
-
+const bot = botBuilder.getBot();
 bot.launch().then(() => console.log("Bot started"));
