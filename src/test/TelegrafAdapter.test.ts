@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { addArray, setCommands, TCommand } from "../script";
+import { addArray } from "../script";
 import "mocha";
 
 // DELETE
