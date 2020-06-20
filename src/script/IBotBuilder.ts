@@ -16,6 +16,7 @@ import {
   ITelegrafBotLogic,
   addArray,
 } from ".";
+import { TelegrafContext } from "telegraf/typings/context";
 
 export interface IBotBuilder {
   configByLogic(logic: IBotLogic): void;
@@ -33,12 +34,19 @@ export class TelegrafBotBuilder implements IBotBuilder {
   private bot: TelegrafAdapter;
   private botStage!: TelegrafStage;
 
-  constructor(bot: Telegraf<Context>) {
+  constructor(bot: Telegraf<TelegrafContext>) {
     this.bot = new TelegrafAdapter(bot);
   }
 
   configByLogic(logic: ITelegrafBotLogic): void {
-    throw new Error("Method not implemented.");
+    if (logic.stage) this.setStage(logic.stage);
+    if (logic.scenes) this.addScenes(...logic.scenes);
+    if (logic.baseFunc) {
+      if (logic.baseFunc.middleware) this.addMiddleware(...logic.baseFunc.middleware);
+      if (logic.baseFunc.commands) this.addCommands(...logic.baseFunc.commands);
+      if (logic.baseFunc.events) this.addEvents(...logic.baseFunc.events);
+      if (logic.baseFunc.triggers) this.addTriggers(...logic.baseFunc.triggers);
+    }
   }
   addCommands(...commands: ITelegrafCommand[]): void {
     addArray(commands, (item) => {
@@ -61,18 +69,19 @@ export class TelegrafBotBuilder implements IBotBuilder {
     });
   }
   addScenes(...scenes: TelegrafScene[]): void {
-    if (!this.botStage) this.botStage = new TelegrafStage(...scenes);
-    else this.botStage.register(...scenes);
+    if (!this.botStage) {
+      this.botStage = new TelegrafStage(...scenes);
+      this.addMiddleware(session(), this.botStage.middleware() as Middleware<TelegrafContext>);
+    } else this.botStage.register(...scenes);
   }
   setStage(stage: TelegrafStage): void {
     this.botStage = stage;
+    this.addMiddleware(session(), this.botStage.middleware() as Middleware<TelegrafContext>);
   }
   getStage(): TelegrafStage {
     return this.botStage;
   }
   getBot(): TelegrafAdapter {
-    if (this.botStage)
-      this.addMiddleware(session(), this.botStage.middleware() as Middleware<Context>);
     return this.bot;
   }
 }

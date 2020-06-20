@@ -1,10 +1,18 @@
-import { IBot, IBotScene, IBotStage } from ".";
 import { Telegraf, Middleware, BaseScene, Stage, Context } from "telegraf";
 import { HearsTriggers, MiddlewareFn } from "telegraf/typings/composer";
 import { UpdateType, MessageSubTypes } from "telegraf/typings/telegram-types";
 import { SceneContextMessageUpdate } from "telegraf/typings/stage";
-import { IBotCommand, IBotTrigger, IBotEvent, IBotFunc, IBotLogic } from "./IBot-types";
-import { IBotBuilder } from "./IBotBuilder";
+import {
+  IBot,
+  IBotScene,
+  IBotStage,
+  IBotBuilder,
+  IBotCommand,
+  IBotTrigger,
+  IBotEvent,
+  IBotFunc,
+  IBotLogic,
+} from ".";
 
 export interface ITelegrafCommand extends IBotCommand {
   commands: string | string[];
@@ -44,8 +52,8 @@ export interface ITelegrafBotFunc extends IBotFunc {
 }
 
 export interface ITelegrafBotLogic extends IBotLogic {
-  stage?: IBotStage;
-  scenes?: IBotScene[];
+  stage?: TelegrafStage;
+  scenes?: TelegrafScene[];
   baseFunc?: ITelegrafBotFunc;
 }
 
