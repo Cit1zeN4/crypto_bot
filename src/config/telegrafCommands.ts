@@ -1,6 +1,6 @@
-import { TTelegrafCommand } from "../script/TelegrafAdapter";
+import { ITelegrafCommand } from "../script/TelegrafAdapter";
 
-const commands: TTelegrafCommand[] = [
+const commands: ITelegrafCommand[] = [
   {
     commands: "start",
     actions: [

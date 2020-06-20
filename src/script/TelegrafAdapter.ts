@@ -3,36 +3,51 @@ import { Telegraf, Middleware, BaseScene, Stage, Context } from "telegraf";
 import { HearsTriggers, MiddlewareFn } from "telegraf/typings/composer";
 import { UpdateType, MessageSubTypes } from "telegraf/typings/telegram-types";
 import { SceneContextMessageUpdate } from "telegraf/typings/stage";
+import { IBotCommand, IBotTrigger, IBotEvent, IBotFunc, IBotLogic } from "./IBot-types";
+import { IBotBuilder } from "./IBotBuilder";
 
-export type TTelegrafCommand = {
+export interface ITelegrafCommand extends IBotCommand {
   commands: string | string[];
   actions: Middleware<Context>[];
-};
+}
 
-export type TTelegrafTrigger = {
+export interface ITelegrafTrigger extends IBotTrigger {
   triggers: HearsTriggers<Context>;
   actions: Middleware<Context>[];
-};
+}
 
-export type TTelegrafEvent = {
+export interface ITelegrafEvent extends IBotEvent {
   events: UpdateType | MessageSubTypes | UpdateType[] | MessageSubTypes[];
   actions: Middleware<Context>[];
-};
+}
 
-export type TTelegrafSceneCommand = {
+export interface ITelegrafSceneCommand extends IBotCommand {
   commands: string | string[];
   actions: Middleware<SceneContextMessageUpdate>[];
-};
+}
 
-export type TTelegrafSceneTrigger = {
+export interface ITelegrafSceneTrigger extends IBotBuilder {
   triggers: HearsTriggers<SceneContextMessageUpdate>;
   actions: Middleware<SceneContextMessageUpdate>[];
-};
+}
 
-export type TTelegrafSceneEvent = {
+export interface ITelegrafSceneEvent extends IBotEvent {
   events: UpdateType | MessageSubTypes | UpdateType[] | MessageSubTypes[];
   actions: Middleware<SceneContextMessageUpdate>[];
-};
+}
+
+export interface ITelegrafBotFunc extends IBotFunc {
+  commands?: ITelegrafCommand[];
+  triggers?: ITelegrafTrigger[];
+  events?: ITelegrafEvent[];
+  middleware?: Middleware<Context>[];
+}
+
+export interface ITelegrafBotLogic extends IBotLogic {
+  stage?: IBotStage;
+  scenes?: IBotScene[];
+  baseFunc?: ITelegrafBotFunc;
+}
 
 export class TelegrafScene implements IBotScene {
   private scene: BaseScene<SceneContextMessageUpdate>;
@@ -44,13 +59,13 @@ export class TelegrafScene implements IBotScene {
   use(...middleware: Middleware<SceneContextMessageUpdate>[]): void {
     this.scene.use(...middleware);
   }
-  on(event: TTelegrafSceneEvent): void {
+  on(event: ITelegrafSceneEvent): void {
     this.scene.on(event.events, ...event.actions);
   }
-  hears(trigger: TTelegrafSceneTrigger): void {
+  hears(trigger: ITelegrafSceneTrigger): void {
     this.scene.hears(trigger.triggers, ...trigger.actions);
   }
-  command(command: TTelegrafSceneCommand): void {
+  command(command: ITelegrafSceneCommand): void {
     this.scene.command(command.commands, ...command.actions);
   }
 
@@ -77,13 +92,13 @@ export class TelegrafStage implements IBotStage {
   use(...middleware: Middleware<SceneContextMessageUpdate>[]): void {
     this.stage.use(...middleware);
   }
-  on(event: TTelegrafSceneEvent): void {
+  on(event: ITelegrafSceneEvent): void {
     this.stage.on(event.events, ...event.actions);
   }
-  hears(trigger: TTelegrafSceneTrigger): void {
+  hears(trigger: ITelegrafSceneTrigger): void {
     this.stage.hears(trigger.triggers, ...trigger.actions);
   }
-  command(command: TTelegrafSceneCommand): void {
+  command(command: ITelegrafSceneCommand): void {
     this.stage.command(command.commands, ...command.actions);
   }
 
@@ -119,13 +134,13 @@ export class TelegrafAdapter implements IBot {
   use(...middleware: Middleware<Context>[]): void {
     this.telegraf.use(...middleware);
   }
-  on(event: TTelegrafEvent): void {
+  on(event: ITelegrafEvent): void {
     this.telegraf.on(event.events, ...event.actions);
   }
-  hears(trigger: TTelegrafTrigger): void {
+  hears(trigger: ITelegrafTrigger): void {
     this.telegraf.hears(trigger.triggers, ...trigger.actions);
   }
-  command(command: TTelegrafCommand): void {
+  command(command: ITelegrafCommand): void {
     this.telegraf.command(command.commands, ...command.actions);
   }
   launch(): Promise<void> {

@@ -1,23 +1,31 @@
-import { TCommand } from ".";
-import { TEvent, TTrigger } from "./IBot-types";
-import { IBotScene, IBot } from "./IBot";
+import { Telegraf, Context, Middleware, Stage, session } from "telegraf";
 import {
+  IBotCommand,
   TelegrafAdapter,
-  TTelegrafCommand,
-  TTelegrafEvent,
-  TTelegrafTrigger,
+  ITelegrafCommand,
+  ITelegrafEvent,
+  ITelegrafTrigger,
   TelegrafScene,
   TelegrafStage,
-} from "./TelegrafAdapter";
-import Telegraf, { Context, Middleware, Stage, session } from "telegraf";
-import { addArray } from "./addArray";
+  IBotEvent,
+  IBotTrigger,
+  IBotScene,
+  IBot,
+  IBotStage,
+  IBotLogic,
+  ITelegrafBotLogic,
+  addArray,
+} from ".";
 
 export interface IBotBuilder {
-  addCommands(...commands: TCommand[]): void;
-  addEvents(...events: TEvent[]): void;
-  addListener(...triggers: TTrigger[]): void;
+  configByLogic(logic: IBotLogic): void;
+  addCommands(...commands: IBotCommand[]): void;
+  addEvents(...events: IBotEvent[]): void;
+  addTriggers(...triggers: IBotTrigger[]): void;
   addMiddleware(...middleware: Function[] | Object[]): void;
   addScenes(...scenes: IBotScene[]): void;
+  setStage(stage: IBotStage): void;
+  getStage(): IBotStage;
   getBot(): IBot;
 }
 
@@ -29,17 +37,20 @@ export class TelegrafBotBuilder implements IBotBuilder {
     this.bot = new TelegrafAdapter(bot);
   }
 
-  addCommands(...commands: TTelegrafCommand[]): void {
+  configByLogic(logic: ITelegrafBotLogic): void {
+    throw new Error("Method not implemented.");
+  }
+  addCommands(...commands: ITelegrafCommand[]): void {
     addArray(commands, (item) => {
       this.bot.command(item);
     });
   }
-  addEvents(...events: TTelegrafEvent[]): void {
+  addEvents(...events: ITelegrafEvent[]): void {
     addArray(events, (item) => {
       this.bot.on(item);
     });
   }
-  addListener(...triggers: TTelegrafTrigger[]): void {
+  addTriggers(...triggers: ITelegrafTrigger[]): void {
     addArray(triggers, (item) => {
       this.bot.hears(item);
     });
@@ -52,6 +63,12 @@ export class TelegrafBotBuilder implements IBotBuilder {
   addScenes(...scenes: TelegrafScene[]): void {
     if (!this.botStage) this.botStage = new TelegrafStage(...scenes);
     else this.botStage.register(...scenes);
+  }
+  setStage(stage: TelegrafStage): void {
+    this.botStage = stage;
+  }
+  getStage(): TelegrafStage {
+    return this.botStage;
   }
   getBot(): TelegrafAdapter {
     if (this.botStage)
