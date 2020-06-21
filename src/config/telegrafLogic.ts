@@ -3,27 +3,44 @@ import { Markup, Stage } from "telegraf";
 
 const mainScene = new TelegrafScene("main");
 mainScene.enter((ctx) => {
-  ctx.reply(
-    "Our functional",
-    Markup.inlineKeyboard([
-      Markup.callbackButton("Coke", "Coke"),
-      Markup.callbackButton("Pepsi", "Pepsi"),
-    ]).extra()
-  );
+  ctx.reply("Our functional", Markup.keyboard(["Log in", "Log out"]).resize().oneTime().extra());
+});
+mainScene.hears({
+  triggers: "Log in",
+  actions: [
+    (ctx) => {
+      ctx.scene.enter("login");
+    },
+  ],
 });
 
 const loginScene = new TelegrafScene("login");
 loginScene.enter((ctx) => {
-  ctx.reply("Plese enter your login");
+  (ctx as any).scene.state.backScene = "main";
+  ctx.reply("Please enter your phrase");
 });
-loginScene.leave((ctx) => {
-  ctx.scene.enter("main ");
+loginScene.on({
+  events: "text",
+  actions: [
+    (ctx) => {
+      ctx.reply(ctx.message?.text ? ctx.message?.text : "0_0");
+    },
+  ],
 });
 
 const scenes = [mainScene, loginScene];
 
 const stage = new TelegrafStage(...scenes);
-stage.command({ commands: "cancel", actions: [Stage.leave()] });
+stage.command({
+  commands: "cancel",
+  actions: [
+    (ctx) => {
+      const back = (ctx as any).scene.state.backScene;
+      if (back) ctx.scene.enter(back);
+      else ctx.scene.enter("main");
+    },
+  ],
+});
 
 const logic: ITelegrafBotLogic = {
   baseFunc: {
@@ -32,7 +49,7 @@ const logic: ITelegrafBotLogic = {
         commands: "start",
         actions: [
           (ctx) => {
-            ctx.reply("Welcom to crypto bot");
+            ctx.reply("Welcome to crypto bot");
             (ctx as any).scene.enter("main");
           },
         ],
