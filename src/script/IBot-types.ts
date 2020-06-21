@@ -15,6 +15,11 @@ export interface IBotEvent {
   actions: Function[] | Object[];
 }
 
+export interface IBotAction {
+  triggers: string | string[] | RegExp | RegExp[] | Function;
+  actions: Function[] | Object[];
+}
+
 export interface IBotFunc {
   commands?: IBotCommand[];
   triggers?: IBotTrigger[];

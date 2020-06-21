@@ -13,6 +13,7 @@ import {
   IBotFunc,
   IBotLogic,
 } from ".";
+import { IBotAction } from "./IBot-types";
 
 export interface ITelegrafCommand extends IBotCommand {
   commands: string | string[];
@@ -29,18 +30,28 @@ export interface ITelegrafEvent extends IBotEvent {
   actions: Middleware<Context>[];
 }
 
+export interface ITelegrafAction extends IBotAction {
+  triggers: HearsTriggers<Context>;
+  actions: Middleware<Context>[];
+}
+
 export interface ITelegrafSceneCommand extends IBotCommand {
   commands: string | string[];
   actions: Middleware<SceneContextMessageUpdate>[];
 }
 
-export interface ITelegrafSceneTrigger extends IBotBuilder {
+export interface ITelegrafSceneTrigger extends IBotTrigger {
   triggers: HearsTriggers<SceneContextMessageUpdate>;
   actions: Middleware<SceneContextMessageUpdate>[];
 }
 
 export interface ITelegrafSceneEvent extends IBotEvent {
   events: UpdateType | MessageSubTypes | UpdateType[] | MessageSubTypes[];
+  actions: Middleware<SceneContextMessageUpdate>[];
+}
+
+export interface ITelegrafSceneAction extends IBotAction {
+  triggers: HearsTriggers<SceneContextMessageUpdate>;
   actions: Middleware<SceneContextMessageUpdate>[];
 }
 
@@ -64,6 +75,9 @@ export class TelegrafScene implements IBotScene {
     this.scene = new BaseScene<SceneContextMessageUpdate>(id, options);
   }
 
+  action(action: ITelegrafSceneAction): void {
+    this.scene.action(action.triggers, ...action.actions);
+  }
   use(...middleware: Middleware<SceneContextMessageUpdate>[]): void {
     this.scene.use(...middleware);
   }
@@ -97,6 +111,9 @@ export class TelegrafStage implements IBotStage {
     this.stage = new Stage(baseScenes);
   }
 
+  action(action: ITelegrafSceneAction): void {
+    this.stage.action(action.triggers, ...action.actions);
+  }
   use(...middleware: Middleware<SceneContextMessageUpdate>[]): void {
     this.stage.use(...middleware);
   }
@@ -139,6 +156,9 @@ export class TelegrafAdapter implements IBot {
     this.telegraf = telegraf;
   }
 
+  action(action: ITelegrafAction): void {
+    this.telegraf.action(action.triggers, ...action.actions);
+  }
   use(...middleware: Middleware<Context>[]): void {
     this.telegraf.use(...middleware);
   }
