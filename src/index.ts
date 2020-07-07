@@ -1,9 +1,7 @@
 import Telegraf, { Stage, session, Middleware } from "telegraf";
 import { getConfig } from "./config";
-import { TelegrafBotBuilder, TelegrafScene, TelegrafStage, TelegrafAdapter } from "./script";
-
+import { TelegrafBotBuilder } from "./script";
 import logic from "./config/telegrafLogic";
-import { TelegrafContext } from "telegraf/typings/context";
 
 const config = getConfig("config");
 const telegraf = new Telegraf(config.bot.botToken);

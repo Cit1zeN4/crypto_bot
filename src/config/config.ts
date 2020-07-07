@@ -4,6 +4,12 @@ export type ConfigT = {
   bot: {
     botToken: string;
   };
+  waves: {
+    node: string;
+    assetId: string;
+    feeAssetId: string;
+    minFee: number;
+  };
 };
 
 export function getConfig(name: string): ConfigT {
