@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -r ts-node/register src/test/**/*.test.ts",
     "build": "gulp",
     "dev": "gulp dev"
   },
@@ -20,13 +20,21 @@
   },
   "homepage": "https://github.com/Cit1zeN4/crypto_bot#readme",
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "@types/hapi__joi": "^17.1.3",
+    "@waves/waves-transactions": "^3.25.6",
+    "node-fetch": "^2.6.0",
     "rc": "^1.2.8",
     "telegraf": "^3.38.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node-fetch": "^2.5.7",
     "@types/rc": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
     "@typescript-eslint/parser": "^3.2.0",
+    "chai": "^4.2.0",
     "del": "^5.1.0",
     "eslint": "^7.2.0",
     "eslint-config-google": "^0.14.0",
@@ -36,7 +44,9 @@
     "gulp-nodemon": "^2.5.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^6.0.0-alpha.1",
+    "mocha": "^8.0.1",
     "prettier": "^2.0.5",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   }
 }

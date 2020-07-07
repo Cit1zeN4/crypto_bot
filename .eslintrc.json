@@ -11,7 +11,13 @@
   },
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
-    "prettier/prettier": "error",
-    "require-jsdoc": "off"
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+    "require-jsdoc": "off",
+    "no-unused-vars": "off"
   }
 }
