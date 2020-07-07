@@ -1,7 +1,14 @@
-import Telegraf from "telegraf";
-import { getConfig } from "./config/config";
+import Telegraf, { Stage, session, Middleware } from "telegraf";
+import { getConfig } from "./config";
+import { TelegrafBotBuilder } from "./script";
+import logic from "./config/telegrafLogic";
 
 const config = getConfig("config");
-const bot = new Telegraf(config.bot.bot_token);
-bot.start((ctx) => ctx.reply("Hi"));
-bot.launch();
+const telegraf = new Telegraf(config.bot.botToken);
+const botBuilder = new TelegrafBotBuilder(telegraf);
+
+botBuilder.addMiddleware(Telegraf.log());
+botBuilder.configByLogic(logic);
+
+const bot = botBuilder.getBot();
+bot.launch().then(() => console.log("Bot started"));

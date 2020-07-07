@@ -2,7 +2,13 @@ import rc from "rc";
 
 export type ConfigT = {
   bot: {
-    bot_token: string;
+    botToken: string;
+  };
+  waves: {
+    node: string;
+    assetId: string;
+    feeAssetId: string;
+    minFee: number;
   };
 };
 
