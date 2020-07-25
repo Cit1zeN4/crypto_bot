@@ -52,20 +52,4 @@ export class Waves {
     if (res.ok) return await res.json();
     else throw new Error(await res.text());
   }
-
-  async wavesTest() {
-    const address = libs.crypto.address(config.waves.seed);
-    const verifyAddress = libs.crypto.verifyAddress(address, {
-      chainId: libs.crypto.MAIN_NET_CHAIN_ID,
-    });
-    if (!verifyAddress) throw new Error("Wrong seed");
-    const verifyFee = this.calcFee(
-      transfer({
-        amount: 1,
-        recipient: address,
-        senderPublicKey: libs.crypto.publicKey(config.waves.seed),
-        feeAssetId: config.waves.feeAssetId,
-      })
-    );
-  }
 }

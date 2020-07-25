@@ -6,16 +6,9 @@ import logic from "./config/telegrafLogic";
 const config = getConfig("config");
 const telegraf = new Telegraf(config.bot.botToken);
 const botBuilder = new TelegrafBotBuilder(telegraf);
-const waves = new Waves();
-waves
-  .wavesTest()
-  .then(() => {
-    botBuilder.addMiddleware(Telegraf.log());
-    botBuilder.configByLogic(logic);
 
-    const bot = botBuilder.getBot();
-    bot.launch().then(() => console.log("Bot started"));
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+botBuilder.addMiddleware(Telegraf.log());
+botBuilder.configByLogic(logic);
+
+const bot = botBuilder.getBot();
+bot.launch().then(() => console.log("Bot started"));
