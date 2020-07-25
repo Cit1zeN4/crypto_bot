@@ -8,7 +8,7 @@ export type ConfigT = {
     node: string;
     assetId: string;
     feeAssetId: string;
-    minFee: number;
+    seed: string;
   };
 };
 

@@ -13,20 +13,27 @@ enum txStage {
 
 const config = getConfig("config");
 const waves = new Waves();
-let wavesTransfer: TTransaction;
+const wavesTransfer: TTransaction = { recipient: "", amount: 0, seed: config.waves.seed };
+let botMessage: any = undefined;
 
 const mainScene = new TelegrafScene("main");
 mainScene.enter((ctx) => {
-  ctx.reply(
-    "You can make some actions",
-    Markup.keyboard(["Create transaction"]).resize().oneTime().extra()
-  );
+  ctx
+    .reply(
+      "You can make some actions",
+      Markup.inlineKeyboard([Markup.callbackButton("Create transaction", "tx")]).extra()
+    )
+    .then((m) => {
+      botMessage = m.message_id;
+    });
 });
 
-mainScene.hears({
-  triggers: "Create transaction",
+mainScene.action({
+  triggers: "tx",
   actions: [
     (ctx) => {
+      ctx.answerCbQuery();
+      ctx.deleteMessage(botMessage);
       ctx.scene.enter("tx");
     },
   ],
@@ -36,11 +43,11 @@ const txScene = new TelegrafScene("tx");
 txScene.enter((ctx) => {
   (ctx as any).scene.state.backScene = "main";
   (ctx as any).scene.state.txStage = txStage.Recipient;
-  (ctx as any).scene.state.txData = { recipient: null, amount: null, fee: null, seed: null };
-  ctx.reply(
-    "Enter the recipient's address",
-    Markup.keyboard(["Cancel"]).resize().oneTime().extra()
-  );
+  ctx
+    .reply("Enter the recipient's address", Markup.keyboard(["Cancel"]).resize().oneTime().extra())
+    .then((m) => {
+      botMessage = m.message_id;
+    });
 });
 
 txScene.on({
@@ -51,9 +58,11 @@ txScene.on({
         case txStage.Recipient: {
           const valid = joi.string().required().validate(ctx.message?.text);
           if (!valid.error) {
-            (ctx as any).scene.state.txData.recipient = valid.value;
+            wavesTransfer.recipient = valid.value;
             (ctx as any).scene.state.txStage = txStage.Amount;
-            ctx.reply("Enter Amount");
+            ctx.reply("Enter Amount").then((m) => {
+              botMessage = m.message_id;
+            });
           } else {
             ctx.reply(valid.error.message);
           }
@@ -62,56 +71,17 @@ txScene.on({
         case txStage.Amount: {
           const valid = joi.number().required().min(1).validate(ctx.message?.text);
           if (!valid.error) {
-            (ctx as any).scene.state.txData.amount = valid.value;
-            (ctx as any).scene.state.txStage = txStage.Fee;
-            ctx.reply("Enter fee");
-          } else {
-            ctx.reply(valid.error.message);
-          }
-
-          break;
-        }
-        case txStage.Fee: {
-          const valid = joi
-            .number()
-            .required()
-            .min(Number(config.waves.minFee) | 100000)
-            .validate(ctx.message?.text);
-          if (!valid.error) {
-            (ctx as any).scene.state.txData.fee = valid.value;
-            (ctx as any).scene.state.txStage = txStage.Seed;
-            ctx.reply("Enter seed");
-          } else {
-            ctx.reply(valid.error.message);
-          }
-
-          break;
-        }
-        case txStage.Seed: {
-          const valid = joi.string().required().validate(ctx.message?.text);
-          if (!valid.error) {
-            (ctx as any).scene.state.txData.seed = valid.value;
-            const txData = (ctx as any).scene.state.txData;
-            ctx
-              .reply(
-                `Transaction:\nRecipient: ${txData.recipient}\nAmount: ${txData.amount}\nFee: ${txData.fee}`
-              )
-              .then(() => {
-                ctx.scene.enter("txApply");
-              });
-            wavesTransfer = {
-              recipient: txData.recipient,
-              amount: txData.amount,
-              fee: txData.fee,
-              seed: txData.seed,
-            };
+            wavesTransfer.amount = valid.value;
+            ctx.scene.enter("txApply");
           } else {
             ctx.reply(valid.error.message);
           }
           break;
         }
         default: {
-          ctx.reply("Something went wrong");
+          ctx.reply("Something went wrong try again").then((m) => {
+            botMessage = m.message_id;
+          });
           break;
         }
       }
@@ -123,29 +93,51 @@ const txApplyScene = new TelegrafScene("txApply");
 
 txApplyScene.enter((ctx) => {
   (ctx as any).scene.state.backScene = "main";
-  ctx.reply(
-    "Are you sure you want to make a transaction?",
-    Markup.keyboard(["Yes I'm sure", "Cancel"]).resize().oneTime().extra()
-  );
+  ctx
+    .reply(
+      `Transaction info:\nRecipient: ${wavesTransfer.recipient}\nAmount: ${wavesTransfer.amount}\n\nAre you sure you want to make a transaction?`,
+      Markup.inlineKeyboard([
+        [Markup.callbackButton("Yes I'm sure", "txYes")],
+        [Markup.callbackButton("No, I'm not", "txNo")],
+      ]).extra()
+    )
+    .then((m) => {
+      botMessage = m.message_id;
+    });
 });
 
-txApplyScene.hears({
-  triggers: "Yes I'm sure",
+txApplyScene.action({
+  triggers: "txYes",
   actions: [
-    (ctx) => {
-      const result = waves.createTransaction(wavesTransfer);
+    async (ctx) => {
+      const result = await waves.createTransaction(wavesTransfer);
+      console.log(result);
       waves.sendTxRequest(result).then(async (res) => {
         if (res.ok) {
-          await ctx.reply("OK", Markup.removeKeyboard().extra());
+          await ctx.answerCbQuery();
+          await ctx.deleteMessage(botMessage);
+          botMessage = await (
+            await ctx.reply("Transaction was created successfully", Markup.removeKeyboard().extra())
+          ).message_id;
         } else {
-          const err = await res.json();
+          const err = await res.text();
           console.log(err);
           await ctx.reply("Creating transaction error");
         }
-        console.log(result);
         const back = (ctx as any).scene.state.backScene;
         ctx.scene.enter(back);
       });
+    },
+  ],
+});
+
+txApplyScene.action({
+  triggers: "txNo",
+  actions: [
+    async (ctx) => {
+      await ctx.answerCbQuery();
+      await ctx.deleteMessage(botMessage);
+      await ctx.scene.enter("main");
     },
   ],
 });
@@ -156,10 +148,33 @@ const stage = new TelegrafStage(...scenes);
 stage.hears({
   triggers: "Cancel",
   actions: [
-    (ctx) => {
+    async (ctx) => {
+      await ctx.deleteMessage(botMessage);
       const back = (ctx as any).scene.state.backScene;
-      if (back) ctx.scene.enter(back);
-      else ctx.scene.enter("main");
+      if (back) await ctx.scene.enter(back);
+      else await ctx.scene.enter("main");
+    },
+  ],
+});
+
+stage.command({
+  commands: "cancel",
+  actions: [
+    async (ctx) => {
+      await ctx.deleteMessage(botMessage);
+      const back = (ctx as any).scene.state.backScene;
+      if (back) await ctx.scene.enter(back);
+      else await ctx.scene.enter("main");
+    },
+  ],
+});
+
+stage.command({
+  commands: "menu",
+  actions: [
+    async (ctx) => {
+      await ctx.deleteMessage(botMessage);
+      await ctx.scene.enter("main");
     },
   ],
 });
